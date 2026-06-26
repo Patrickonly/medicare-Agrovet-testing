@@ -82,7 +82,8 @@ export default function OTPPage() {
       if (tempUser.subscription_billing_cycle === "yearly") {
         endDate.setFullYear(endDate.getFullYear() + 1);
       } else {
-        endDate.setMonth(endDate.getMonth() + 1);
+        const duration = (tempUser as any).subscription_duration_months || 1;
+        endDate.setMonth(endDate.getMonth() + duration);
       }
 
       localDB.subscriptions.create({

@@ -41,12 +41,20 @@ export default function DashboardHome() {
   const [expiringSoonCount, setExpiringSoonCount] = useState(0);
   const [openShift, setOpenShift] = useState<any>(null);
   const [recentSales, setRecentSales] = useState<any[]>([]);
+  const [subscriptionDays, setSubscriptionDays] = useState(14);
 
   useEffect(() => {
     if (!organizationId) return;
 
     const org = localDB.organizations.getById(organizationId);
     if (org) setOrgInfo(org);
+
+    const subs = localDB.subscriptions.getByOrganizationId(organizationId);
+    const activeSub = subs.find(s => s.status === "active");
+    if (activeSub && activeSub.end_date) {
+      const diff = Math.ceil((new Date(activeSub.end_date).getTime() - new Date().getTime()) / (1000 * 3600 * 24));
+      setSubscriptionDays(diff > 0 ? diff : 0);
+    }
 
     // Sales metrics
     const sales = localDB.sales.getByOrganizationId(organizationId);
@@ -184,7 +192,7 @@ export default function DashboardHome() {
           </div>
           <div>
             <p className="text-xs font-bold text-amber-600 uppercase tracking-wider">Subscription Status</p>
-            <p className="text-lg font-extrabold text-amber-900">14 Days Remaining</p>
+            <p className="text-lg font-extrabold text-amber-900">{subscriptionDays} Days Remaining</p>
           </div>
           <div className="ml-4 pl-4 border-l border-amber-200/50">
             <Link to="/dashboard/settings" className="text-sm font-bold text-amber-700 hover:text-amber-800 hover:underline">
